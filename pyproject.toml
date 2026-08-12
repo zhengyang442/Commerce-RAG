@@ -1,0 +1,38 @@
+[project]
+name = "commercerag"
+version = "0.4.0"
+description = "可解释家具商品搜索与选购助手"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.116,<1",
+    "fastembed>=0.7,<1",
+    "httpx>=0.28,<1",
+    "pydantic>=2.11,<3",
+    "sqlite-vec>=0.1.9,<0.2",
+    "uvicorn>=0.35,<1",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4,<9",
+    "ruff>=0.12,<1",
+]
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+addopts = "-ra"
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"

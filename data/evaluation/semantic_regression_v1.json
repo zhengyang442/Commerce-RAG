@@ -1,0 +1,57 @@
+{
+  "version": "semantic_regression_v1",
+  "frozen_before_vector_evaluation": true,
+  "metric": "expected product_class term appears in Top-1 or Top-3",
+  "cases": [
+    {
+      "id": "semantic_01",
+      "query": "bedside cabinet for a lamp and books",
+      "expected_product_class_terms": ["Nightstands"]
+    },
+    {
+      "id": "semantic_02",
+      "query": "console furniture for a television and media devices",
+      "expected_product_class_terms": ["TV Stands & Entertainment Centers"]
+    },
+    {
+      "id": "semantic_03",
+      "query": "place to organize footwear near the entryway",
+      "expected_product_class_terms": ["Shoe Storage"]
+    },
+    {
+      "id": "semantic_04",
+      "query": "workstation for studying from home",
+      "expected_product_class_terms": ["Desks"]
+    },
+    {
+      "id": "semantic_05",
+      "query": "compact couch for two people",
+      "expected_product_class_terms": ["Loveseats", "Sofas"]
+    },
+    {
+      "id": "semantic_06",
+      "query": "storage shelves for novels and reference books",
+      "expected_product_class_terms": ["Bookcases"]
+    },
+    {
+      "id": "semantic_07",
+      "query": "small table beside a sofa for a drink",
+      "expected_product_class_terms": ["End Tables"]
+    },
+    {
+      "id": "semantic_08",
+      "query": "supportive seat for working at a computer",
+      "expected_product_class_terms": ["Office Chairs"]
+    },
+    {
+      "id": "semantic_09",
+      "query": "table where a family can eat meals together",
+      "expected_product_class_terms": ["Dining Tables", "Dining Table Sets"]
+    },
+    {
+      "id": "semantic_10",
+      "query": "drawers for storing clothes in a bedroom",
+      "expected_product_class_terms": ["Dressers", "Chests"]
+    }
+  ]
+}

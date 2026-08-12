@@ -1,0 +1,38 @@
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.venv/
+
+# Node / frontend tooling if introduced later
+node_modules/
+.next/
+dist/
+
+# Local secrets
+.env
+.env.*
+!.env.example
+
+# Generated runtime data and reports
+data/raw/wands/*
+!data/raw/wands/.gitkeep
+data/processed/
+data/index/
+data/models/
+artifacts/
+
+# Internal collaboration and review material
+CLAUDE.md
+docs/internal/
+docs/AI审查的工程细节.md
+docs/CONTEXT_PACK.md
+docs/IMPLEMENTATION_LOG.md
+docs/人工审查记录.docx
+docs/.~人工审查记录.docx
+人工审查文档.md

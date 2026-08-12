@@ -1,0 +1,137 @@
+{
+  "chinese_query_understanding": [
+    {
+      "case_count": 30,
+      "category_accuracy_at_1": 0.8666666666666667,
+      "category_hit_at_3": 0.9666666666666667,
+      "evaluation_version": "chinese_regression_v1",
+      "exclusion_detection_rate": 1.0,
+      "fallback_rate": 0.0,
+      "mode": "rules",
+      "query_rewrite_valid_rate": 1.0,
+      "required_term_coverage": 0.9833333333333333,
+      "rewrite_latency_ms": {
+        "p50": 0.091,
+        "p95": 0.102
+      },
+      "source_report_sha256": "9a57e1c8f75772c90a4b4d8b2c2d4ae9a107f8dfd756f3a58df33bd5ad1143ef",
+      "unsupported_intent_accuracy": 1.0
+    },
+    {
+      "case_count": 30,
+      "category_accuracy_at_1": 0.7666666666666667,
+      "category_hit_at_3": 0.9,
+      "evaluation_version": "chinese_regression_v1",
+      "exclusion_detection_rate": 1.0,
+      "fallback_rate": 0.0,
+      "mode": "llm",
+      "query_rewrite_valid_rate": 1.0,
+      "required_term_coverage": 0.7555555555555556,
+      "rewrite_latency_ms": {
+        "p50": 887.289,
+        "p95": 1212.575
+      },
+      "source_report_sha256": "1564ac46bd5093e176073d397b032c3c5b745e01c55df1cc7b321fe5a683c565",
+      "unsupported_intent_accuracy": 1.0
+    }
+  ],
+  "data": {
+    "commit": "3b74dcf4ba29ab8ff3e6a50b5b09fc627cb882b5",
+    "labels": 233448,
+    "name": "Wayfair ANnotation Dataset (WANDS)",
+    "products": 42994,
+    "queries": 480,
+    "split": {
+      "all": 480,
+      "dev": 384,
+      "seed": 42,
+      "test": 96
+    }
+  },
+  "decisions": {
+    "default_retrieval": "hybrid",
+    "query_rewrite": "rules_first_llm_on_untranslated_cjk",
+    "reranker": "experimental_latency_over_budget"
+  },
+  "notes": [
+    "Unjudged products receive zero gain only for benchmark calculation; they are not manually judged Irrelevant.",
+    "Latency is a local macOS ARM64 snapshot and must not be treated as a deployment SLA.",
+    "The LLM rewrite experiment used real provider calls; default tests do not call external models."
+  ],
+  "release": "v0.4",
+  "retrieval": [
+    {
+      "engine": "sqlite_fts5_bm25",
+      "evaluation_version": "bm25_v1",
+      "exact_hit_at_10": 0.6666666666666666,
+      "judged_at_10": 0.7822916666666665,
+      "latency_ms": {
+        "p50": 8.471124980133027,
+        "p95": 29.54765868198592
+      },
+      "mrr_at_10": 0.539732142857143,
+      "ndcg_at_10": 0.6667472729774351,
+      "no_judged_top_10_query_count": 20,
+      "query_count": 480,
+      "recall_at_10": 0.05639239576354132,
+      "relevant_hit_at_10": 0.9395833333333333,
+      "source_report_sha256": "c92673d53d2ed09e96519a3e0bfac7037aa94750debb7355a703ab6c90923e38",
+      "strategy": "bm25"
+    },
+    {
+      "engine": "fastembed_sqlite_vec",
+      "evaluation_version": "vector_v1",
+      "exact_hit_at_10": 0.6791666666666667,
+      "judged_at_10": 0.821666666666666,
+      "latency_ms": {
+        "p50": 23.9995,
+        "p95": 28.510799999999996
+      },
+      "mrr_at_10": 0.5559160052910052,
+      "ndcg_at_10": 0.731348782522,
+      "no_judged_top_10_query_count": 14,
+      "query_count": 480,
+      "recall_at_10": 0.05998213169728313,
+      "relevant_hit_at_10": 0.9625,
+      "source_report_sha256": "950926b2ef9612059b367a65f32f33bea6fe2ae9859ccdf2a53d84f51924b6b2",
+      "strategy": "vector"
+    },
+    {
+      "engine": "bm25_vector_rrf",
+      "evaluation_version": "hybrid_v1",
+      "exact_hit_at_10": 0.7020833333333333,
+      "judged_at_10": 0.8443749999999997,
+      "latency_ms": {
+        "p50": 36.71,
+        "p95": 58.2554
+      },
+      "mrr_at_10": 0.582815806878307,
+      "ndcg_at_10": 0.7476107392043876,
+      "no_judged_top_10_query_count": 13,
+      "query_count": 480,
+      "recall_at_10": 0.06192206030524169,
+      "relevant_hit_at_10": 0.9666666666666667,
+      "source_report_sha256": "eafff1c34bcc5392dadf7eab05c2004785e6e361899766f40e45455f7558b1fc",
+      "strategy": "hybrid"
+    },
+    {
+      "engine": "bm25_vector_rrf_cross_encoder",
+      "evaluation_version": "rerank_v1",
+      "exact_hit_at_10": 0.70625,
+      "judged_at_10": 0.8564583333333337,
+      "latency_ms": {
+        "p50": 1301.1495,
+        "p95": 1416.3306999999998
+      },
+      "mrr_at_10": 0.6046841931216932,
+      "ndcg_at_10": 0.7592253604330533,
+      "no_judged_top_10_query_count": 12,
+      "query_count": 480,
+      "recall_at_10": 0.06209594064732345,
+      "relevant_hit_at_10": 0.9666666666666667,
+      "source_report_sha256": "50be5ba9db107f954cd1f0a4d86a9cf7b103756e404285fae65392d5b69ead0f",
+      "strategy": "rerank"
+    }
+  ],
+  "schema_version": "1"
+}
