@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import sqlite3
+from dataclasses import replace
 from pathlib import Path
 
 import pytest
@@ -148,6 +149,36 @@ def test_answer_api_without_llm_is_retrieval_only(tmp_path: Path) -> None:
     assert payload["fallback_reason"] == "not_configured"
     assert len(payload["results"]) == 2
     assert called is False
+
+
+def test_public_daily_quota_falls_back_without_losing_results(tmp_path: Path) -> None:
+    index_path = tmp_path / "catalog.sqlite"
+    make_answer_index(index_path)
+    settings = replace(
+        configured_settings(index_path),
+        public_preview=True,
+        allowed_hosts=("testserver",),
+        external_calls_per_day=1,
+    )
+    adapters = []
+
+    def factory(_):
+        adapter = FakeAdapter(result=success_result())
+        adapters.append(adapter)
+        return adapter
+
+    app = create_app(settings, llm_adapter_factory=factory)
+    with TestClient(app) as client:
+        first = client.post("/api/answer", json={"query": "accent chairs", "top_k": 2})
+        second = client.post("/api/answer", json={"query": "accent chairs", "top_k": 2})
+
+    assert first.json()["mode"] == "rag"
+    assert second.status_code == 200
+    assert second.json()["mode"] == "retrieval_only"
+    assert second.json()["fallback_reason"] == "quota_exhausted"
+    assert len(second.json()["results"]) == 2
+    assert "今日生成额度已用完" in second.json()["answer"]
+    assert all(adapter.closed for adapter in adapters)
 
 
 @pytest.mark.parametrize(

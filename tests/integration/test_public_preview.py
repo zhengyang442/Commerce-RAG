@@ -12,6 +12,7 @@ def preview_settings(tmp_path, **overrides) -> Settings:
         "public_preview": True,
         "allowed_hosts": ("testserver",),
         "rate_limit_per_minute": 2,
+        "answer_rate_limit_per_minute": 1,
         "max_request_bytes": 100,
     }
     values.update(overrides)
@@ -28,6 +29,7 @@ def test_public_preview_disables_api_docs_and_adds_security_headers(tmp_path) ->
     assert page.headers["x-content-type-options"] == "nosniff"
     assert page.headers["referrer-policy"] == "no-referrer"
     assert page.headers["x-frame-options"] == "DENY"
+    assert page.headers["cache-control"] == "no-store"
 
 
 def test_public_preview_rejects_large_and_rate_limited_requests(tmp_path) -> None:
@@ -52,13 +54,23 @@ def test_public_preview_rejects_large_and_rate_limited_requests(tmp_path) -> Non
         )
     assert streamed.status_code == 413
 
-    settings = preview_settings(tmp_path, rate_limit_per_minute=1, max_request_bytes=1000)
+    settings = preview_settings(
+        tmp_path,
+        rate_limit_per_minute=1,
+        answer_rate_limit_per_minute=1,
+        max_request_bytes=1000,
+    )
     with TestClient(create_app(settings)) as client:
-        first = client.post("/api/search", json={"query": "chair"})
-        second = client.post("/api/search", json={"query": "chair"})
-    assert first.status_code == 503
-    assert second.status_code == 429
-    assert second.json()["error"]["code"] == "rate_limited"
+        first_search = client.post("/api/search", json={"query": "chair"})
+        first_answer = client.post("/api/answer", json={"query": "chair"})
+        second_search = client.post("/api/search", json={"query": "chair"})
+        second_answer = client.post("/api/answer", json={"query": "chair"})
+    assert first_search.status_code == 503
+    assert first_answer.status_code == 503
+    assert second_search.status_code == 429
+    assert second_search.json()["error"]["message"].startswith("搜索")
+    assert second_answer.status_code == 429
+    assert second_answer.json()["error"]["message"].startswith("回答")
 
 
 def test_public_preview_rejects_unknown_host(tmp_path) -> None:

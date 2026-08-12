@@ -22,6 +22,11 @@ def render_retrieval_only(
             f"已检索到 {len(results)} 个候选商品。当前未配置生成模型，"
             "请根据下方商品证据和引用编号核验结果。"
         )
+    elif reason == "quota_exhausted":
+        answer = (
+            f"已检索到 {len(results)} 个候选商品。今日生成额度已用完，"
+            "检索仍然可用，请直接核验下方商品证据。"
+        )
     else:
         answer = f"已检索到 {len(results)} 个候选商品，但生成阶段不可用，已保留全部检索结果供核验。"
     return RetrievalOnlyContent(answer=answer, limitations=list(FIXED_LIMITATIONS))

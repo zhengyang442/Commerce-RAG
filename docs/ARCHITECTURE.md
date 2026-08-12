@@ -66,8 +66,9 @@ FTS 索引在临时文件中完成事务、FTS rebuild、数量检查和 `PRAGMA
 - 精确 Host 白名单；
 - 精确 CORS 来源；
 - 搜索/回答请求体上限；
-- 单进程每 IP 速率边界；
+- 搜索与回答独立的单进程每 IP 速率边界；
+- 查询改写与回答生成共享的单进程每日真实外部调用额度；
 - 外部模型调用并发上限；
-- `X-Content-Type-Options`、`Referrer-Policy`、`X-Frame-Options`。
+- `Cache-Control: no-store`、`X-Content-Type-Options`、`Referrer-Policy`、`X-Frame-Options`。
 
-这些能力只适合个人项目预览。阶段三仍需要 Cloudflare 提供 HTTPS、外层流量治理和隧道边界；Uvicorn 只监听 `127.0.0.1`。
+这些边界全部是单进程内防护，重启会重置计数，也不能替代公网网关。阶段三仍需要 Cloudflare 提供 HTTPS、外层流量治理和隧道边界；Uvicorn 只监听 `127.0.0.1`。

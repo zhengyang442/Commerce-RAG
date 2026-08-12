@@ -14,6 +14,7 @@ from app.api.public_preview import PublicPreviewGuardMiddleware
 from app.api.routes import router
 from app.core.config import Settings
 from app.core.logging import configure_logging
+from app.core.usage_limits import DailyExternalCallBudget
 from app.generation.orchestrator import AdapterFactory, build_adapter
 from app.query_understanding.rewriter import ProviderQueryRewriter
 from app.query_understanding.service import RewriterFactory
@@ -42,11 +43,17 @@ def create_app(
     app.state.external_call_semaphore = asyncio.Semaphore(
         resolved_settings.max_external_concurrency
     )
+    app.state.external_call_budget = (
+        DailyExternalCallBudget(resolved_settings.external_calls_per_day)
+        if resolved_settings.public_preview
+        else None
+    )
     if resolved_settings.public_preview:
         app.add_middleware(
             PublicPreviewGuardMiddleware,
             max_request_bytes=resolved_settings.max_request_bytes,
-            requests_per_minute=resolved_settings.rate_limit_per_minute,
+            search_requests_per_minute=resolved_settings.rate_limit_per_minute,
+            answer_requests_per_minute=resolved_settings.answer_rate_limit_per_minute,
         )
         app.add_middleware(
             TrustedHostMiddleware,

@@ -49,6 +49,7 @@ class Citation(StrictModel):
 AnswerMode = Literal["rag", "retrieval_only"]
 FallbackReason = Literal[
     "not_configured",
+    "quota_exhausted",
     "timeout",
     "provider_error",
     "model_error",

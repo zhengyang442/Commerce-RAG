@@ -14,11 +14,21 @@ PROTECTED_PATHS = {"/api/search", "/api/answer"}
 class PublicPreviewGuardMiddleware:
     """Small single-process preview guard; a reverse proxy remains the outer security layer."""
 
-    def __init__(self, app, *, max_request_bytes: int, requests_per_minute: int) -> None:
+    def __init__(
+        self,
+        app,
+        *,
+        max_request_bytes: int,
+        search_requests_per_minute: int,
+        answer_requests_per_minute: int,
+    ) -> None:
         self.app = app
         self.max_request_bytes = max_request_bytes
-        self.requests_per_minute = requests_per_minute
-        self._requests: MutableMapping[str, deque[float]] = defaultdict(deque)
+        self.requests_per_minute = {
+            "/api/search": search_requests_per_minute,
+            "/api/answer": answer_requests_per_minute,
+        }
+        self._requests: MutableMapping[tuple[str, str], deque[float]] = defaultdict(deque)
 
     async def __call__(self, scope: dict[str, Any], receive, send) -> None:
         if scope["type"] != "http":
@@ -37,8 +47,14 @@ class PublicPreviewGuardMiddleware:
                     await self._json_error(send, 413, "request_too_large", "请求体过大")
                     return
             client = scope.get("client") or ("unknown", 0)
-            if not self._allow(str(client[0])):
-                await self._json_error(send, 429, "rate_limited", "请求过于频繁，请稍后再试")
+            if not self._allow(str(client[0]), path):
+                label = "回答" if path == "/api/answer" else "搜索"
+                await self._json_error(
+                    send,
+                    429,
+                    "rate_limited",
+                    f"{label}请求过于频繁，请稍后再试",
+                )
                 return
 
         buffered: list[dict[str, Any]] = []
@@ -66,6 +82,7 @@ class PublicPreviewGuardMiddleware:
                 headers = list(message.get("headers", []))
                 headers.extend(
                     [
+                        (b"cache-control", b"no-store"),
                         (b"x-content-type-options", b"nosniff"),
                         (b"referrer-policy", b"no-referrer"),
                         (b"x-frame-options", b"DENY"),
@@ -76,12 +93,12 @@ class PublicPreviewGuardMiddleware:
 
         await self.app(scope, guarded_receive, secure_send)
 
-    def _allow(self, client: str) -> bool:
+    def _allow(self, client: str, path: str) -> bool:
         now = time.monotonic()
-        window = self._requests[client]
+        window = self._requests[(client, path)]
         while window and window[0] <= now - 60:
             window.popleft()
-        if len(window) >= self.requests_per_minute:
+        if len(window) >= self.requests_per_minute[path]:
             return False
         window.append(now)
         return True

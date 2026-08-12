@@ -59,6 +59,7 @@ async def search(payload: SearchRequest, request: Request) -> SearchResponse | J
             settings,
             rewriter_factory=request.app.state.query_rewriter_factory,
             external_call_semaphore=request.app.state.external_call_semaphore,
+            external_call_budget=request.app.state.external_call_budget,
         ).understand(payload.query)
         result = RetrievalService(
             settings.index_path,
@@ -93,6 +94,7 @@ async def answer(payload: SearchRequest, request: Request) -> AnswerResponse | J
             adapter_factory=request.app.state.llm_adapter_factory,
             query_rewriter_factory=request.app.state.query_rewriter_factory,
             external_call_semaphore=request.app.state.external_call_semaphore,
+            external_call_budget=request.app.state.external_call_budget,
         ).answer(payload.query, payload.top_k, payload.retrieval_strategy)
     except CommerceRAGError as error:
         return api_error(error, request_id)

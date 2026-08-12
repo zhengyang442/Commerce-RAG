@@ -14,18 +14,27 @@ def test_static_ui_and_assets_are_served(tmp_path) -> None:
 
     assert page.status_code == 200
     assert 'lang="zh-CN"' in page.text
-    assert "v0.4 支持中文查询" in page.text
-    assert "支持中文或英文" in page.text
-    assert "系统如何理解你的需求" in page.text
+    assert "把家具需求说清楚" in page.text
+    assert "中文跨语言检索" in page.text
+    assert "多条件与排除项" in page.text
+    assert "没有证据就不承诺" in page.text
+    assert "系统这样理解你的需求" in page.text
     assert "搜索并回答" in page.text
     assert "只检索" in page.text
+    assert 'value="5"' in page.text
+    assert "开发者模式" in page.text
+    assert "不记录完整查询" in page.text
+    assert "模型不可用时仍返回检索结果" in page.text
     assert "BM25（v0.1）" in page.text
     assert "Vector（v0.2" in page.text
     assert "Hybrid RRF（v0.3" in page.text
-    assert "Hybrid + Reranker（v0.3" in page.text
+    assert "Hybrid + Reranker（实验" in page.text
     assert 'option value="vector" disabled' in page.text
     assert styles.status_code == 200
-    assert "@media (max-width: 760px)" in styles.text
+    assert "@media (max-width: 800px)" in styles.text
+    assert "prefers-reduced-motion: reduce" in styles.text
+    assert ".product-card { min-width: 0" in styles.text
+    assert "overflow-wrap: anywhere" in styles.text
     assert script.status_code == 200
 
 
@@ -42,3 +51,6 @@ def test_ui_uses_text_content_for_untrusted_product_and_model_text(tmp_path) -> 
     assert "retrieval_strategy" in script
     assert "vector_index_ready" in script
     assert "query_understanding" in script
+    assert "rawJson.textContent" in script
+    assert "developer-mode" in script
+    assert "dataset.query" in script

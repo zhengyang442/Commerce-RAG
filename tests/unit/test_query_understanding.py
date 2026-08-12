@@ -3,6 +3,7 @@ from __future__ import annotations
 import pytest
 
 from app.core.config import Settings
+from app.core.usage_limits import DailyExternalCallBudget
 from app.generation.llm.errors import LLMTimeoutError
 from app.query_understanding.models import RewriteOutput
 from app.query_understanding.rules import analyze_with_rules, detect_language
@@ -143,3 +144,35 @@ async def test_rewrite_failure_falls_back_to_rules() -> None:
     assert result.fallback_reason == "timeout"
     assert result.retrieval_query == "furniture"
     assert adapter.closed is True
+
+
+@pytest.mark.anyio
+async def test_query_rewrite_daily_quota_falls_back_to_rules() -> None:
+    adapter = FakeRewriter(
+        result=RewriteOutput(
+            retrieval_query="ergonomic chair for school children",
+            category_terms=["chair"],
+            attributes={"feature": ["ergonomic"]},
+            excluded_terms=[],
+        )
+    )
+    settings = Settings(
+        llm_api_style="openai",
+        llm_base_url="https://example.test",
+        llm_api_key="x",
+        llm_model="m",
+    )
+    budget = DailyExternalCallBudget(1)
+    service = QueryUnderstandingService(
+        settings,
+        rewriter_factory=lambda _: adapter,
+        external_call_budget=budget,
+    )
+
+    first = await service.understand("给学龄儿童使用的人体工学座椅")
+    second = await service.understand("给学龄儿童使用的人体工学座椅")
+
+    assert first.rewrite_source == "llm"
+    assert second.rewrite_source == "rules_fallback"
+    assert second.fallback_reason == "quota_exhausted"
+    assert second.retrieval_query == "furniture"

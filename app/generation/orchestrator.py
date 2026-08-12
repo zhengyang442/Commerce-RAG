@@ -7,12 +7,13 @@ from collections.abc import Callable
 
 from app.core.config import Settings
 from app.core.models import Citation, RetrievalStrategy, SearchResult, Timing
+from app.core.usage_limits import DailyExternalCallBudget
 from app.generation.answer_renderer import render_rag_answer
 from app.generation.citation_validator import validate_generated_answer
 from app.generation.evidence import build_evidence_pack
 from app.generation.llm.anthropic_httpx import AnthropicHTTPAdapter
 from app.generation.llm.contracts import LLMAdapter
-from app.generation.llm.errors import LLMError, LLMInvalidOutputError
+from app.generation.llm.errors import LLMError, LLMInvalidOutputError, LLMQuotaExceededError
 from app.generation.llm.openai_compatible_httpx import OpenAICompatibleHTTPAdapter
 from app.generation.policy import FIXED_LIMITATIONS
 from app.generation.retrieval_only import render_retrieval_only
@@ -63,14 +64,17 @@ class AnswerOrchestrator:
         adapter_factory: AdapterFactory | None = None,
         query_rewriter_factory: RewriterFactory | None = None,
         external_call_semaphore: asyncio.Semaphore | None = None,
+        external_call_budget: DailyExternalCallBudget | None = None,
     ) -> None:
         self.settings = settings
         self.adapter_factory = adapter_factory or build_adapter
         self.external_call_semaphore = external_call_semaphore
+        self.external_call_budget = external_call_budget
         self.query_understanding = QueryUnderstandingService(
             settings,
             rewriter_factory=query_rewriter_factory,
             external_call_semaphore=external_call_semaphore,
+            external_call_budget=external_call_budget,
         )
         self.retrieval = RetrievalService(
             settings.index_path,
@@ -127,6 +131,11 @@ class AnswerOrchestrator:
         adapter = self.adapter_factory(self.settings)
         generation_started = time.perf_counter()
         try:
+            if (
+                self.external_call_budget is not None
+                and not await self.external_call_budget.try_acquire()
+            ):
+                raise LLMQuotaExceededError()
             if self.external_call_semaphore is None:
                 generated = await adapter.generate(pack)
             else:
