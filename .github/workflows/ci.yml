@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  public-checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.8.4"
+          enable-cache: true
+
+      - name: Install Python and locked dependencies
+        run: uv sync --python 3.11 --frozen
+
+      - name: Run public checks
+        run: bash scripts/check_public.sh
+
+      - name: Scan complete public Git history
+        run: uv run python -m scripts.scan_public_repo

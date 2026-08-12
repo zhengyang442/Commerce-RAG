@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CommerceRAG · 家具商品搜索</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+    <script src="/static/app.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#search-form">跳到搜索</a>
+    <header class="hero">
+      <div class="hero__inner">
+        <p class="eyebrow">EXPLAINABLE PRODUCT SEARCH</p>
+        <h1>CommerceRAG</h1>
+        <p class="hero__lead">用中文描述家具需求，从真实英文商品目录中检索可核验证据。</p>
+        <div class="data-notice" role="note">
+          v0.4 支持中文查询并自动生成英文检索表达。当前数据不提供价格、库存、配送、促销或售后信息。
+        </div>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="query-panel" aria-labelledby="query-title">
+        <div class="section-heading">
+          <div>
+            <p class="section-kicker">01 / 查询</p>
+            <h2 id="query-title">描述你的家具需求</h2>
+          </div>
+          <span id="health-status" class="status-chip">正在检查索引…</span>
+        </div>
+
+        <form id="search-form">
+          <label for="query-input">商品需求（支持中文或英文）</label>
+          <textarea
+            id="query-input"
+            name="query"
+            rows="3"
+            required
+            maxlength="500"
+            placeholder="我想找一张实木大号平台床，不需要弹簧床架"
+          ></textarea>
+
+          <div class="form-row">
+            <label class="compact-field" for="top-k-input">
+              Top-K
+              <input id="top-k-input" name="top_k" type="number" min="1" max="20" value="10" />
+            </label>
+            <fieldset class="mode-switch">
+              <legend>运行模式</legend>
+              <label><input type="radio" name="mode" value="answer" checked /> 搜索并回答</label>
+              <label><input type="radio" name="mode" value="search" /> 只检索</label>
+            </fieldset>
+            <label class="compact-field" for="strategy-input">
+              检索策略
+              <select id="strategy-input" name="retrieval_strategy">
+                <option value="bm25">BM25（v0.1）</option>
+                <option value="vector" disabled>Vector（v0.2 · 正在检查索引）</option>
+                <option value="hybrid" disabled selected>Hybrid RRF（v0.3 · 正在检查索引）</option>
+                <option value="rerank" disabled>Hybrid + Reranker（v0.3 · 正在检查索引）</option>
+              </select>
+            </label>
+            <button id="submit-button" type="submit">搜索并回答</button>
+          </div>
+        </form>
+
+        <div class="examples" aria-label="中文示例查询">
+          <span>试试：</span>
+          <button type="button" class="example-query">我想找一张实木大号平台床，不需要弹簧床架</button>
+          <button type="button" class="example-query">蓝色天鹅绒休闲椅，带金色椅腿</button>
+          <button type="button" class="example-query">适合四个人的小型圆形餐桌</button>
+        </div>
+        <div id="message" class="message" role="status" aria-live="polite"></div>
+      </section>
+
+      <section id="understanding-section" class="understanding-panel hidden" aria-labelledby="understanding-title">
+        <div class="section-heading">
+          <div>
+            <p class="section-kicker">02 / 理解</p>
+            <h2 id="understanding-title">系统如何理解你的需求</h2>
+          </div>
+          <span id="language-chip" class="status-chip"></span>
+        </div>
+        <dl id="understanding-list" class="understanding-list"></dl>
+        <div id="intent-notice" class="data-notice hidden" role="note"></div>
+      </section>
+
+      <section id="answer-section" class="answer-panel hidden" aria-labelledby="answer-title">
+        <div class="section-heading">
+          <div>
+            <p class="section-kicker">03 / 回答</p>
+            <h2 id="answer-title">证据约束回答</h2>
+          </div>
+          <span id="mode-chip" class="status-chip"></span>
+        </div>
+        <p id="answer-text" class="answer-text"></p>
+        <div id="citation-links" class="citation-links" aria-label="回答引用"></div>
+        <div class="limitations">
+          <h3>数据限制</h3>
+          <ul id="limitations-list"></ul>
+        </div>
+      </section>
+
+      <section id="evidence-section" class="evidence-panel hidden" aria-labelledby="evidence-title">
+        <div class="section-heading">
+          <div>
+            <p class="section-kicker">04 / 证据</p>
+            <h2 id="evidence-title">商品证据</h2>
+          </div>
+          <span id="result-count" class="result-count"></span>
+        </div>
+        <div id="results-grid" class="results-grid"></div>
+      </section>
+
+      <details id="debug-panel" class="debug-panel hidden">
+        <summary>调试信息</summary>
+        <dl id="debug-list"></dl>
+      </details>
+    </main>
+  </body>
+</html>
