@@ -65,6 +65,8 @@ def test_public_preview_settings_are_typed(monkeypatch: pytest.MonkeyPatch) -> N
     monkeypatch.setenv("RAG_ALLOWED_ORIGINS", "https://example.com,https://www.example.com")
     monkeypatch.setenv("RAG_ALLOWED_HOSTS", "example.com,www.example.com")
     monkeypatch.setenv("RAG_RATE_LIMIT_PER_MINUTE", "12")
+    monkeypatch.setenv("RAG_ANSWER_RATE_LIMIT_PER_MINUTE", "4")
+    monkeypatch.setenv("RAG_EXTERNAL_CALLS_PER_DAY", "25")
 
     settings = Settings.from_env()
 
@@ -72,6 +74,8 @@ def test_public_preview_settings_are_typed(monkeypatch: pytest.MonkeyPatch) -> N
     assert settings.allowed_origins == ("https://example.com", "https://www.example.com")
     assert settings.allowed_hosts == ("example.com", "www.example.com")
     assert settings.rate_limit_per_minute == 12
+    assert settings.answer_rate_limit_per_minute == 4
+    assert settings.external_calls_per_day == 25
 
 
 def test_invalid_public_preview_setting_is_rejected(monkeypatch: pytest.MonkeyPatch) -> None:

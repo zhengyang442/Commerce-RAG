@@ -4,6 +4,7 @@ from typing import Literal
 
 LLMErrorKind = Literal[
     "not_configured",
+    "quota_exhausted",
     "timeout",
     "provider_error",
     "model_error",
@@ -21,6 +22,11 @@ class LLMError(Exception):
 class LLMNotConfiguredError(LLMError):
     def __init__(self, message: str = "生成模型未配置") -> None:
         super().__init__("not_configured", message)
+
+
+class LLMQuotaExceededError(LLMError):
+    def __init__(self, message: str = "今日生成额度已用完") -> None:
+        super().__init__("quota_exhausted", message)
 
 
 class LLMTimeoutError(LLMError):

@@ -6,7 +6,8 @@ import time
 from collections.abc import Callable
 
 from app.core.config import Settings
-from app.generation.llm.errors import LLMError
+from app.core.usage_limits import DailyExternalCallBudget
+from app.generation.llm.errors import LLMError, LLMQuotaExceededError
 from app.query_understanding.models import QueryUnderstanding, RewriteOutput
 from app.query_understanding.rewriter import ProviderQueryRewriter, QueryRewriter
 from app.query_understanding.rules import analyze_with_rules, detect_unsupported_intents
@@ -22,10 +23,12 @@ class QueryUnderstandingService:
         *,
         rewriter_factory: RewriterFactory | None = None,
         external_call_semaphore: asyncio.Semaphore | None = None,
+        external_call_budget: DailyExternalCallBudget | None = None,
     ) -> None:
         self.settings = settings
         self.rewriter_factory = rewriter_factory or ProviderQueryRewriter
         self.external_call_semaphore = external_call_semaphore
+        self.external_call_budget = external_call_budget
 
     async def understand(self, query: str) -> QueryUnderstanding:
         started = time.perf_counter()
@@ -43,6 +46,11 @@ class QueryUnderstandingService:
 
         rewriter = self.rewriter_factory(self.settings)
         try:
+            if (
+                self.external_call_budget is not None
+                and not await self.external_call_budget.try_acquire()
+            ):
+                raise LLMQuotaExceededError()
             if self.external_call_semaphore is None:
                 output = await rewriter.rewrite(query)
             else:

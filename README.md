@@ -4,11 +4,12 @@
 
 [![CI](https://github.com/zhengyang442/Commerce-RAG/actions/workflows/ci.yml/badge.svg)](https://github.com/zhengyang442/Commerce-RAG/actions/workflows/ci.yml)
 [![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB)](https://www.python.org/)
-[![Release](https://img.shields.io/badge/current-v0.4-0F766E)](CHANGELOG.md)
+[![Release](https://img.shields.io/badge/current-v0.5%20Stage%202-0F766E)](CHANGELOG.md)
+[![License](https://img.shields.io/badge/license-MIT-C9EC72)](LICENSE)
 
 CommerceRAG 不是通用聊天机器人。它聚焦一个可以量化的真实场景：用户用中文或英文描述家具需求，系统从 42,994 件真实商品中检索候选，给出受证据约束的回答，并允许通过商品接口核验引用字段。
 
-当前公开代码对应 `v0.4`；`v0.5` 正在把它整理成可公网体验的个人项目。在线 Demo 会在 v0.5 阶段三完成后开放。
+当前公开代码已经完成 `v0.5 Stage 2` 的 Demo 产品化；在线 Demo 会在阶段三的 Mac mini 部署完成后开放。
 
 ## 为什么做这个项目
 
@@ -29,7 +30,8 @@ CommerceRAG 不是通用聊天机器人。它聚焦一个可以量化的真实�
 - EvidencePack、引用校验、结构化 LLM 回答以及可靠的 `retrieval_only` 降级。
 - Anthropic Messages 与 OpenAI-compatible 两种原始 HTTP 适配层。
 - 中文响应式 Web UI、FastAPI API 和离线评测工具。
-- 公网预览模式下的 Host、CORS、请求体、速率、并发和安全响应头边界。
+- 访客/开发者双模式，以及中文跨语言、多条件排除、安全拒答三个固定演示故事。
+- 公网预览模式下的 Host、CORS、请求体、分级速率、每日模型额度、并发和安全响应头边界。
 
 当前不包含价格、库存、配送、促销、售后实时数据，也不包含账号、个性化和正式高可用部署。系统不会对数据集不存在的商业信息做出承诺。
 
@@ -118,6 +120,8 @@ uv run uvicorn app.main:app --host 127.0.0.1 --port 8001
 
 未配置 LLM 时应用仍会正常启动，`/api/answer` 自动返回只检索结果。
 
+页面默认面向普通访客：固定使用可用的最佳检索策略、Top-5 结果和简洁证据。展开“开发者模式”后可以选择策略和 Top-K，并查看分数、来源排名、完整字段、JSON 与分阶段耗时。
+
 ## 可选 LLM 配置
 
 应用不会自动读取 `.env`，也不会读取 Claude Code、CC Switch 或其他工具的密钥。复制模板后必须在启动前显式加载：
@@ -145,6 +149,8 @@ uv run uvicorn app.main:app --host 127.0.0.1 --port 8001
 ```
 
 OpenAI-compatible 网关必须显式设置 base URL。不要复用开发工具密钥；任何曾经出现在聊天、终端记录或第三方配置中的 Key 都应撤销后重新生成。
+
+公网预览还支持独立的搜索/回答分钟限流，以及查询改写和回答生成共享的单进程每日真实模型调用额度。额度耗尽时继续返回检索结果，不会让核心搜索不可用。配置字段见 [`.env.example`](.env.example)。
 
 ## API
 
@@ -198,9 +204,10 @@ git diff --exit-code -- benchmarks/releases/v0.4.json
 - [公开评测与指标语义](docs/EVALUATION.md)
 - [v0.1 至 v0.4 演进记录](docs/EVOLUTION.md)
 - [v0.5 三阶段路线图](ROADMAP.md)
+- [阶段二验收记录](docs/STAGE2_ACCEPTANCE.md)
 - [贡献指南](CONTRIBUTING.md)
 - [安全策略](SECURITY.md)
 
-## 许可证状态
+## 许可证
 
-WANDS 数据集采用 MIT License，原始数据不进入本仓库。本项目代码的公开许可证尚未选定；在根目录出现明确的 `LICENSE` 文件之前，默认保留全部权利，不代表允许复制、修改或再分发。
+本项目代码采用 [MIT License](LICENSE)。WANDS 数据集也采用 MIT License，原始数据不进入本仓库；下载脚本会把上游许可证随数据保存到本地。

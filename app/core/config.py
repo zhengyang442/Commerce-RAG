@@ -40,6 +40,8 @@ class Settings:
     allowed_origins: tuple[str, ...] = ()
     allowed_hosts: tuple[str, ...] = ("127.0.0.1", "localhost", "testserver")
     rate_limit_per_minute: int = 30
+    answer_rate_limit_per_minute: int = 10
+    external_calls_per_day: int = 100
     max_request_bytes: int = 16_384
     max_external_concurrency: int = 4
 
@@ -75,6 +77,8 @@ class Settings:
         rewrite_timeout = _positive_float_env("RAG_QUERY_REWRITE_TIMEOUT_SECONDS", 8.0)
         public_preview = _boolean_env("RAG_PUBLIC_PREVIEW", False)
         rate_limit = _positive_int_env("RAG_RATE_LIMIT_PER_MINUTE", 30)
+        answer_rate_limit = _positive_int_env("RAG_ANSWER_RATE_LIMIT_PER_MINUTE", 10)
+        external_calls_per_day = _positive_int_env("RAG_EXTERNAL_CALLS_PER_DAY", 100)
         max_request_bytes = _positive_int_env("RAG_MAX_REQUEST_BYTES", 16_384)
         max_external_concurrency = _positive_int_env("RAG_MAX_EXTERNAL_CONCURRENCY", 4)
 
@@ -93,6 +97,8 @@ class Settings:
             allowed_origins=_csv_env("RAG_ALLOWED_ORIGINS"),
             allowed_hosts=_csv_env("RAG_ALLOWED_HOSTS") or ("127.0.0.1", "localhost", "testserver"),
             rate_limit_per_minute=rate_limit,
+            answer_rate_limit_per_minute=answer_rate_limit,
+            external_calls_per_day=external_calls_per_day,
             max_request_bytes=max_request_bytes,
             max_external_concurrency=max_external_concurrency,
         )
