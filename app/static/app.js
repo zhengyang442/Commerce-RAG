@@ -109,8 +109,9 @@ async function checkHealth() {
   try {
     const response = await fetch("/api/health", { cache: "no-store" });
     const payload = await response.json();
+    elements.health.classList.toggle("is-unavailable", !payload.index_ready);
     elements.health.textContent = payload.index_ready
-      ? `${payload.product_count.toLocaleString()} 件商品可检索`
+      ? `目录可用 · ${payload.product_count.toLocaleString()} 件商品`
       : "商品索引未就绪";
 
     const vectorOption = elements.strategy.querySelector("option[value='vector']");
@@ -130,6 +131,7 @@ async function checkHealth() {
       : "Hybrid + Reranker（实验 · 模型未就绪）";
     elements.strategy.value = payload.vector_index_ready ? "hybrid" : "bm25";
   } catch (_) {
+    elements.health.classList.add("is-unavailable");
     elements.health.textContent = "暂时无法检查服务状态";
     elements.strategy.value = "bm25";
   }
@@ -143,8 +145,14 @@ function developerMode() {
   return elements.developerToggle.checked;
 }
 
+function setSubmitLabel(label, showArrow = true) {
+  clearNode(elements.submit);
+  elements.submit.append(createElement("span", "", label));
+  if (showArrow) elements.submit.append(createElement("span", "", "→"));
+}
+
 function updateSubmitLabel() {
-  elements.submit.textContent = selectedMode() === "search" ? "检索商品" : "查找合适商品";
+  setSubmitLabel(selectedMode() === "search" ? "运行检索" : "检索并生成");
 }
 
 function setLoading(loading) {
@@ -152,7 +160,7 @@ function setLoading(loading) {
   elements.query.disabled = loading;
   elements.topK.disabled = loading;
   elements.strategy.disabled = loading;
-  elements.submit.textContent = loading ? "正在查找…" : "";
+  if (loading) setSubmitLabel("正在检索…", false);
   document.querySelectorAll("input[name='mode']").forEach((input) => {
     input.disabled = loading;
   });
@@ -209,7 +217,7 @@ function renderUnderstanding(payload) {
   );
   if (unavailable.length) {
     elements.intentNotice.textContent =
-      `当前商品数据不包含${unavailable.join("、")}。系统会继续检索商品，但不会编造这些信息。`;
+      `当前数据不包含：${unavailable.join("、")}。相关字段不参与回答。`;
     elements.intentNotice.classList.remove("hidden");
   } else {
     elements.intentNotice.classList.add("hidden");
@@ -225,7 +233,11 @@ function renderCard(product) {
   const top = createElement("div", "card-top");
   const titleGroup = createElement("div");
   titleGroup.append(
-    createElement("div", "card-rank", `#${product.rank} · ${product.product_class || "家具商品"}`),
+    createElement(
+      "div",
+      "card-rank",
+      `RANK ${String(product.rank).padStart(2, "0")} / ${product.product_class || "家具商品"}`,
+    ),
     createElement("h3", "card-title", product.product_name),
   );
   top.append(titleGroup, createElement("span", "citation-badge", `[${product.citation_id}]`));
@@ -233,7 +245,7 @@ function renderCard(product) {
   const summary = createElement("p", "card-description", truncate(product.product_description, 180));
   const evidence = createElement("div", "evidence-highlight");
   evidence.append(
-    createElement("span", "evidence-label", "关键商品特征"),
+    createElement("span", "evidence-label", "商品特征"),
     createElement("p", "", truncate(product.product_features, 220)),
   );
 
@@ -264,7 +276,7 @@ function renderCard(product) {
   );
   advanced.append(diagnostics, matched, fullFields);
 
-  const link = createElement("a", "product-link", "通过商品接口核验原始字段 →");
+  const link = createElement("a", "product-link", "查看原始字段 ↗");
   link.href = `/api/products/${product.product_id}`;
   link.target = "_blank";
   link.rel = "noopener";
@@ -294,8 +306,8 @@ function renderResults(results) {
 function renderAnswer(payload) {
   clearNode(elements.citations);
   clearNode(elements.limitations);
-  elements.answerText.textContent = payload.answer || "请直接核验下方商品证据。";
-  const modeLabel = payload.mode === "rag" ? "已生成证据约束回答" : "只检索模式";
+  elements.answerText.textContent = payload.answer || "查看下方检索结果。";
+  const modeLabel = payload.mode === "rag" ? "生成回答" : "只检索模式";
   const fallback = payload.fallback_reason ? ` · ${FALLBACK_LABELS[payload.fallback_reason]}` : "";
   elements.modeChip.textContent = `${modeLabel}${fallback}`;
   (payload.citations || []).forEach((citation) => {

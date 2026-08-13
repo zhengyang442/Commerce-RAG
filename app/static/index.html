@@ -3,95 +3,51 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta
-      name="description"
-      content="CommerceRAG：用中文检索真实英文家具目录，并核验每条推荐的商品证据。"
-    />
-    <title>CommerceRAG · 可解释家具搜索</title>
-    <link rel="stylesheet" href="/static/styles.css" />
-    <script src="/static/app.js" defer></script>
+    <meta name="description" content="CommerceRAG 家具目录检索" />
+    <title>CommerceRAG · 家具目录检索</title>
+    <link rel="stylesheet" href="/static/styles.css?v=20260813-business-1" />
+    <script src="/static/app.js?v=20260813-business-1" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#search-form">跳到搜索</a>
 
-    <header class="hero">
+    <header class="site-header">
       <nav class="topbar" aria-label="项目导航">
-        <a class="brand" href="/">CommerceRAG</a>
+        <a class="brand" href="/">
+          <span class="brand__mark" aria-hidden="true">C</span>
+          <span>
+            <strong>CommerceRAG</strong>
+            <small>Product Search</small>
+          </span>
+        </a>
         <div class="topbar__links">
-          <a href="#demo-stories">演示场景</a>
-          <a href="#search-form">开始检索</a>
+          <a href="#search-form">目录检索</a>
+          <a href="#example-queries">查询样例</a>
           <a href="https://github.com/zhengyang442/Commerce-RAG" rel="noopener">GitHub</a>
         </div>
       </nav>
-
-      <div class="hero__inner">
-        <p class="eyebrow">EVIDENCE-FIRST PRODUCT SEARCH</p>
-        <h1>把家具需求说清楚，<br />让每个结果都有证据。</h1>
-        <p class="hero__lead">
-          直接用中文描述需求。CommerceRAG 会理解条件、检索真实英文商品目录，并告诉你推荐依据与数据边界。
-        </p>
-        <a class="hero__action" href="#demo-stories">选择一个演示场景</a>
-
-        <dl class="hero__metrics" aria-label="项目量化指标">
-          <div><dt>42,994</dt><dd>真实家具商品</dd></div>
-          <div><dt>233,448</dt><dd>人工相关性标注</dd></div>
-          <div><dt>0.747611</dt><dd>Hybrid nDCG@10</dd></div>
-        </dl>
-      </div>
     </header>
 
-    <main class="layout">
-      <section id="demo-stories" class="stories" aria-labelledby="stories-title">
-        <div class="section-intro">
-          <p class="section-kicker">THREE DEMO STORIES</p>
-          <h2 id="stories-title">先看它怎样处理真实需求</h2>
-          <p>点击任意场景会立即运行；你也可以在下方输入自己的家具需求。</p>
-        </div>
-        <div class="story-grid">
-          <button
-            type="button"
-            class="story-card example-query"
-            data-query="蓝色天鹅绒休闲椅，带金色椅腿"
-          >
-            <span class="story-index">01</span>
-            <strong>中文跨语言检索</strong>
-            <span>中文需求如何变成可核验的英文商品检索表达。</span>
-            <span class="story-link">运行这个场景 →</span>
-          </button>
-          <button
-            type="button"
-            class="story-card example-query"
-            data-query="我想找一张实木大号平台床，不需要弹簧床架"
-          >
-            <span class="story-index">02</span>
-            <strong>多条件与排除项</strong>
-            <span>同时保留材质、尺寸、品类与“不需要”的约束。</span>
-            <span class="story-link">运行这个场景 →</span>
-          </button>
-          <button
-            type="button"
-            class="story-card example-query"
-            data-query="适合四个人的小型圆形餐桌，现在多少钱，有没有折扣"
-          >
-            <span class="story-index">03</span>
-            <strong>没有证据就不承诺</strong>
-            <span>检索餐桌，同时明确拒绝回答数据中不存在的价格与折扣。</span>
-            <span class="story-link">运行这个场景 →</span>
-          </button>
-        </div>
-      </section>
-
-      <section class="query-panel" aria-labelledby="query-title">
-        <div class="section-heading">
+    <main class="page-shell">
+      <section class="search-workspace" aria-labelledby="query-title">
+        <div class="workspace-header">
           <div>
-            <p class="section-kicker">SEARCH THE CATALOG</p>
-            <h2 id="query-title">你在找什么家具？</h2>
+            <p class="overline">FURNITURE CATALOG / WANDS</p>
+            <h1 id="query-title">家具目录检索</h1>
+            <p class="workspace-subline">中文查询 <span>/</span> 英文商品目录 <span>/</span> Hybrid RRF</p>
           </div>
-          <span id="health-status" class="status-chip">正在检查商品索引…</span>
+          <dl class="catalog-facts" aria-label="项目数据">
+            <div><dt>目录规模</dt><dd>42,994</dd></div>
+            <div><dt>标注样本</dt><dd>233,448</dd></div>
+            <div><dt>离线质量</dt><dd>0.747611 <small>nDCG@10</small></dd></div>
+          </dl>
         </div>
 
         <form id="search-form">
-          <label for="query-input">用一句话描述品类、风格、材质、尺寸或排除条件</label>
+          <div class="field-heading">
+            <label for="query-input">检索条件</label>
+            <span id="health-status" class="status-chip">正在检查商品索引…</span>
+          </div>
           <div class="search-box">
             <textarea
               id="query-input"
@@ -99,81 +55,134 @@
               rows="3"
               required
               maxlength="500"
-              placeholder="例如：我想找一张实木大号平台床，不需要弹簧床架"
+              placeholder="输入品类、材质、尺寸、风格或排除条件"
             ></textarea>
-            <button id="submit-button" type="submit">查找合适商品</button>
+            <button id="submit-button" type="submit">
+              <span>运行检索</span>
+              <span aria-hidden="true">→</span>
+            </button>
           </div>
 
-          <details id="developer-controls" class="developer-controls">
-            <summary>开发者模式：策略、Top-K 与原始诊断</summary>
-            <div class="developer-toggle-row">
-              <label class="toggle" for="developer-toggle">
-                <input id="developer-toggle" type="checkbox" />
-                显示检索分数、来源排名、完整字段、JSON 与分阶段耗时
-              </label>
-            </div>
-            <div class="advanced-grid">
-              <label for="top-k-input">
-                Top-K
-                <input id="top-k-input" name="top_k" type="number" min="1" max="20" value="5" />
-              </label>
-              <fieldset class="mode-switch">
-                <legend>运行模式</legend>
-                <label><input type="radio" name="mode" value="answer" checked /> 搜索并回答</label>
-                <label><input type="radio" name="mode" value="search" /> 只检索</label>
-              </fieldset>
-              <label for="strategy-input">
-                检索策略
-                <select id="strategy-input" name="retrieval_strategy">
-                  <option value="bm25">BM25（v0.1）</option>
-                  <option value="vector" disabled>Vector（v0.2 · 正在检查）</option>
-                  <option value="hybrid" disabled selected>Hybrid RRF（v0.3 · 正在检查）</option>
-                  <option value="rerank" disabled>Hybrid + Reranker（实验）</option>
-                </select>
-              </label>
-            </div>
-          </details>
+          <div class="query-meta">
+            <p class="privacy-note">WANDS 商品目录 · 不保存完整查询 · 生成额度每日重置</p>
+            <details id="developer-controls" class="developer-controls">
+              <summary>开发者选项</summary>
+              <div class="developer-toggle-row">
+                <label class="toggle" for="developer-toggle">
+                  <input id="developer-toggle" type="checkbox" />
+                  显示检索分数、来源排名、完整字段、JSON 与分阶段耗时
+                </label>
+              </div>
+              <div class="advanced-grid">
+                <label for="top-k-input">
+                  Top-K
+                  <input id="top-k-input" name="top_k" type="number" min="1" max="20" value="5" />
+                </label>
+                <fieldset class="mode-switch">
+                  <legend>运行模式</legend>
+                  <label><input type="radio" name="mode" value="answer" checked /> 搜索并回答</label>
+                  <label><input type="radio" name="mode" value="search" /> 只检索</label>
+                </fieldset>
+                <label for="strategy-input">
+                  检索策略
+                  <select id="strategy-input" name="retrieval_strategy">
+                    <option value="bm25">BM25（v0.1）</option>
+                    <option value="vector" disabled>Vector（v0.2 · 正在检查）</option>
+                    <option value="hybrid" disabled selected>Hybrid RRF（v0.3 · 正在检查）</option>
+                    <option value="rerank" disabled>Hybrid + Reranker（实验）</option>
+                  </select>
+                </label>
+              </div>
+            </details>
+          </div>
         </form>
 
-        <p class="privacy-note">
-          个人项目演示 · 不记录完整查询 · 生成额度有限 · 模型不可用时仍返回检索结果
-        </p>
         <div id="message" class="message" role="status" aria-live="polite"></div>
       </section>
 
-      <section id="understanding-section" class="understanding-panel hidden" aria-labelledby="understanding-title">
-        <div class="section-heading compact-heading">
+      <section id="example-queries" class="examples" aria-labelledby="examples-title">
+        <div class="section-heading section-heading--line">
           <div>
-            <p class="section-kicker">QUERY UNDERSTANDING</p>
-            <h2 id="understanding-title">系统这样理解你的需求</h2>
+            <p class="section-index">01</p>
+            <h2 id="examples-title">业务查询样例</h2>
           </div>
-          <span id="language-chip" class="status-chip"></span>
+            <span>03 / CASES</span>
         </div>
-        <dl id="understanding-list" class="understanding-list"></dl>
-        <div id="intent-notice" class="boundary-notice hidden" role="note"></div>
+        <div class="example-list">
+          <button
+            type="button"
+            class="example-query"
+            data-query="蓝色天鹅绒休闲椅，带金色椅腿"
+          >
+            <span class="example-number">01</span>
+            <span class="example-content">
+              <small>跨语言检索</small>
+              <strong>蓝色天鹅绒休闲椅，带金色椅腿</strong>
+            </span>
+            <span class="example-arrow" aria-hidden="true">→</span>
+          </button>
+          <button
+            type="button"
+            class="example-query"
+            data-query="我想找一张实木大号平台床，不需要弹簧床架"
+          >
+            <span class="example-number">02</span>
+            <span class="example-content">
+              <small>多条件约束</small>
+              <strong>实木大号平台床，不需要弹簧床架</strong>
+            </span>
+            <span class="example-arrow" aria-hidden="true">→</span>
+          </button>
+          <button
+            type="button"
+            class="example-query"
+            data-query="适合四个人的小型圆形餐桌，现在多少钱，有没有折扣"
+          >
+            <span class="example-number">03</span>
+            <span class="example-content">
+              <small>数据边界</small>
+              <strong>四人小型圆形餐桌，查询价格与折扣</strong>
+            </span>
+            <span class="example-arrow" aria-hidden="true">→</span>
+          </button>
+        </div>
       </section>
 
-      <section id="answer-section" class="answer-panel hidden" aria-labelledby="answer-title">
-        <div class="section-heading compact-heading">
-          <div>
-            <p class="section-kicker">EVIDENCE-BOUND ANSWER</p>
-            <h2 id="answer-title">基于当前商品证据</h2>
+      <div class="response-layout">
+        <section id="understanding-section" class="understanding-panel hidden" aria-labelledby="understanding-title">
+          <div class="section-heading compact-heading">
+            <div>
+              <p class="section-index">02</p>
+              <h2 id="understanding-title">需求解析</h2>
+            </div>
+            <span id="language-chip" class="status-chip"></span>
           </div>
-          <span id="mode-chip" class="status-chip"></span>
-        </div>
-        <p id="answer-text" class="answer-text"></p>
-        <div id="citation-links" class="citation-links" aria-label="回答引用"></div>
-        <details class="limitations">
-          <summary>查看当前数据不能回答什么</summary>
-          <ul id="limitations-list"></ul>
-        </details>
-      </section>
+          <dl id="understanding-list" class="understanding-list"></dl>
+          <div id="intent-notice" class="boundary-notice hidden" role="note"></div>
+        </section>
+
+        <section id="answer-section" class="answer-panel hidden" aria-labelledby="answer-title">
+          <div class="section-heading compact-heading">
+            <div>
+              <p class="section-index">03</p>
+              <h2 id="answer-title">结果摘要</h2>
+            </div>
+            <span id="mode-chip" class="status-chip"></span>
+          </div>
+          <p id="answer-text" class="answer-text"></p>
+          <div id="citation-links" class="citation-links" aria-label="回答引用"></div>
+          <details class="limitations">
+            <summary>数据边界</summary>
+            <ul id="limitations-list"></ul>
+          </details>
+        </section>
+      </div>
 
       <section id="evidence-section" class="evidence-panel hidden" aria-labelledby="evidence-title">
-        <div class="section-heading compact-heading">
+        <div class="section-heading compact-heading section-heading--line">
           <div>
-            <p class="section-kicker">PRODUCT EVIDENCE</p>
-            <h2 id="evidence-title">最相关的商品证据</h2>
+            <p class="section-index">04</p>
+            <h2 id="evidence-title">候选商品</h2>
           </div>
           <span id="result-count" class="result-count"></span>
         </div>
@@ -189,8 +198,8 @@
     </main>
 
     <footer>
-      <p>CommerceRAG · WANDS 真实商品数据 · MIT License</p>
-      <a href="https://github.com/zhengyang442/Commerce-RAG" rel="noopener">查看代码与评测证据</a>
+      <p>CommerceRAG <span>WANDS</span> <span>Hybrid RRF</span> <span>v0.5</span></p>
+      <a href="https://github.com/zhengyang442/Commerce-RAG" rel="noopener">Repository / Evaluation ↗</a>
     </footer>
   </body>
 </html>

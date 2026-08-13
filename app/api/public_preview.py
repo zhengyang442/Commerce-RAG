@@ -79,7 +79,11 @@ class PublicPreviewGuardMiddleware:
 
         async def secure_send(message):
             if message.get("type") == "http.response.start":
-                headers = list(message.get("headers", []))
+                headers = [
+                    (key, value)
+                    for key, value in message.get("headers", [])
+                    if key.lower() != b"cache-control"
+                ]
                 headers.extend(
                     [
                         (b"cache-control", b"no-store"),
